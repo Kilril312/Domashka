@@ -122,10 +122,10 @@ func main() {
 	e := echo.New()
 	e.Use(middleware.CORS())
 	e.Use(middleware.Logger())
-	e.GET("/task", getTaskHandler)
-	e.POST("/task", postTaskHandler)
-	e.PATCH("/task/:id", patchTaskHandler)
-	e.DELETE("/task/:id", deleteTaskHandler)
+	e.GET("/tasks", getTaskHandler)
+	e.POST("/tasks", postTaskHandler)
+	e.PATCH("/tasks/:id", patchTaskHandler)
+	e.DELETE("/tasks/:id", deleteTaskHandler)
 	e.Start("localhost:8080")
 
 }
