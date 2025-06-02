@@ -40,6 +40,7 @@ func (r *taskRepository) GetTaskByID(id string) (RequestBodyTask, error) {
 func (r *taskRepository) UpdateTask(task RequestBodyTask) error {
 	return r.db.Save(&task).Error
 }
+
 func (r *taskRepository) DeleteTaskByID(id string) error {
 	err := r.db.Delete(&RequestBodyTask{}, id).Error
 	return err

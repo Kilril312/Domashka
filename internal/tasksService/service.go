@@ -1,16 +1,10 @@
 package tasksService
 
-import (
-	"errors"
-	"fmt"
-	"strconv"
-)
-
 type TaskService interface {
 	CreateTask(task string) (RequestBodyTask, error)
 	GetAllTasks() ([]RequestBodyTask, error)
 	GetTaskByID(id string) (RequestBodyTask, error)
-	UpdateTask(id, task string) (RequestBodyTask, error)
+	UpdateTask(id string, task string) (RequestBodyTask, error)
 	DeleteTaskByID(id string) error
 }
 
@@ -39,18 +33,21 @@ func (s taskService) GetTaskByID(id string) (RequestBodyTask, error) {
 	return s.repo.GetTaskByID(id)
 }
 
-func (s taskService) UpdateTask(id, task string) (RequestBodyTask, error) {
-	id, err := strconv.Atoi(id)
-
+func (s taskService) UpdateTask(id string, task string) (RequestBodyTask, error) {
+	idTask, err := s.repo.GetTaskByID(id)
 	if err != nil {
-		return RequestBodyTask{}, errors.New("invalid task ID format")
+		return RequestBodyTask{}, err
+	}
+	updTask := RequestBodyTask{
+		Task: task,
+		ID:   idTask.ID,
+	}
+	if err := s.repo.UpdateTask(updTask); err != nil {
+		return RequestBodyTask{}, err
 	}
 
-	updatedTask, , err := s.repo.UpdateTask(id, task)
-	if err != nil {
-		return RequestBodyTask{}, fmt.Errorf("failed to update task: %v", err)
-	}
-	return updatedTask, nil
+	return updTask, err
+
 }
 
 func (s taskService) DeleteTaskByID(id string) error {
