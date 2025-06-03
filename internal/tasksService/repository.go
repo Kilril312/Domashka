@@ -1,7 +1,6 @@
 package tasksService
 
 import (
-	"fmt"
 	"gorm.io/gorm"
 )
 
@@ -22,7 +21,6 @@ func NewTaskRepository(db *gorm.DB) TaskRepository {
 }
 
 func (r *taskRepository) CreateTask(task RequestBodyTask) (RequestBodyTask, error) {
-	fmt.Println("Репозиторий принял", task)
 	err := r.db.Create(&task).Error
 	return task, err
 }
