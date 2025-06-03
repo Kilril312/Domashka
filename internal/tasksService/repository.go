@@ -1,11 +1,12 @@
 package tasksService
 
 import (
+	"fmt"
 	"gorm.io/gorm"
 )
 
 type TaskRepository interface {
-	CreateTask(task RequestBodyTask) error
+	CreateTask(task RequestBodyTask) (RequestBodyTask, error)
 	GetAllTask() ([]RequestBodyTask, error)
 	GetTaskByID(id string) (RequestBodyTask, error)
 	UpdateTask(task RequestBodyTask) error
@@ -20,20 +21,22 @@ func NewTaskRepository(db *gorm.DB) TaskRepository {
 	return &taskRepository{db: db}
 }
 
-func (r *taskRepository) CreateTask(task RequestBodyTask) error {
+func (r *taskRepository) CreateTask(task RequestBodyTask) (RequestBodyTask, error) {
+	fmt.Println("Репозиторий принял", task)
 	err := r.db.Create(&task).Error
-	return err
+	return task, err
 }
 
 func (r *taskRepository) GetAllTask() ([]RequestBodyTask, error) {
 	var tasks []RequestBodyTask
 	err := r.db.Find(&tasks).Error
+
 	return tasks, err
 }
 
 func (r *taskRepository) GetTaskByID(id string) (RequestBodyTask, error) {
 	var task RequestBodyTask
-	err := r.db.First(&task, "id = ?", id).Error
+	var err = r.db.First(&task, "id = ?", id).Error
 	return task, err
 }
 

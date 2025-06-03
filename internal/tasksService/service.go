@@ -18,11 +18,11 @@ func NewTaskService(r TaskRepository) TaskService {
 
 func (s taskService) CreateTask(task string) (RequestBodyTask, error) {
 	createTask := RequestBodyTask{Task: task}
-	err := s.repo.CreateTask(createTask)
+	createdTask, err := s.repo.CreateTask(createTask)
 	if err != nil {
 		return RequestBodyTask{}, err
 	}
-	return createTask, nil
+	return createdTask, nil
 }
 
 func (s taskService) GetAllTasks() ([]RequestBodyTask, error) {
