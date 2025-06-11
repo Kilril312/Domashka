@@ -4,6 +4,7 @@ import (
 	"domashka/internal/db"
 	"domashka/internal/handlers"
 	"domashka/internal/tasksService"
+	"domashka/internal/web/tasks"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"log"
@@ -23,10 +24,15 @@ func main() {
 
 	e.Use(middleware.CORS())
 	e.Use(middleware.Logger())
+
+	strictHandler := tasks.NewStrictHandler(taskHandlers, nil) // тут будет ошибка
+	tasks.RegisterHandlers(e, strictHandler)
+
 	e.GET("/tasks", taskHandlers.GetTaskHandler)
 	e.POST("/tasks", taskHandlers.PostTaskHandler)
 	e.PATCH("/tasks/:id", taskHandlers.PatchTaskHandler)
 	e.DELETE("/tasks/:id", taskHandlers.DeleteTaskHandler)
+
 	e.Start("localhost:8080")
 
 }
