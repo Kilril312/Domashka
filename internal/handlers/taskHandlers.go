@@ -37,9 +37,9 @@ func (h *TaskHandler) GetTasks(ctx context.Context, request tasks.GetTasksReques
 }
 
 func (h *TaskHandler) PostTasks(ctx context.Context, request tasks.PostTasksRequestObject) (tasks.PostTasksResponseObject, error) {
-	// Распаковываем тело запроса напрямую, без декодера!
+
 	taskRequest := request.Body
-	// Обращаемся к сервису и создаем задачу
+
 	taskToCreate := tasksService.Task{
 		Text:   *taskRequest.Task,
 		IsDone: *taskRequest.IsDone,
