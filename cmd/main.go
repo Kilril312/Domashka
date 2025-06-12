@@ -27,7 +27,8 @@ func main() {
 
 	strictHandler := tasks.NewStrictHandler(taskHandlers, nil) // тут будет ошибка
 	tasks.RegisterHandlers(e, strictHandler)
-	
-	e.Start("localhost:8080")
 
+	if err := e.Start("localhost:8080"); err != nil {
+		log.Fatalf("Ошибка при запуске сервера: %v", err)
+	}
 }

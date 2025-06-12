@@ -16,17 +16,13 @@ func NewTaskHandler(s tasksService.TaskService) *TaskHandler {
 }
 
 func (h *TaskHandler) GetTasks(ctx context.Context, request tasks.GetTasksRequestObject) (tasks.GetTasksResponseObject, error) {
-	// Получение всех задач из сервиса
 	allTasks, err := h.service.GetAllTasks()
 	if err != nil {
 		return nil, err
 	}
 
-	// Создаем переменную респон типа 200джейсонРеспонс
-	// Которую мы потом передадим в качестве ответа
 	response := tasks.GetTasks200JSONResponse{}
 
-	// Заполняем слайс response всеми задачами из БД
 	for _, tsk := range allTasks {
 		task := tasks.RequestBodyTask{
 			Id:   &tsk.ID,
@@ -35,12 +31,12 @@ func (h *TaskHandler) GetTasks(ctx context.Context, request tasks.GetTasksReques
 		response = append(response, task)
 	}
 
-	// САМОЕ ПРЕКРАСНОЕ. Возвращаем просто респонс и nil!
+
 	return response, nil
 }
 
 func (h *TaskHandler) PostTasks(ctx context.Context, request tasks.PostTasksRequestObject) (tasks.PostTasksResponseObject, error) {
-	// Распаковываем тело запроса напрямую, без декодера!
+
 	taskRequest := *request.Body.Task
 
 	createdTask, err := h.service.CreateTask(taskRequest)
@@ -48,12 +44,12 @@ func (h *TaskHandler) PostTasks(ctx context.Context, request tasks.PostTasksRequ
 	if err != nil {
 		return nil, err
 	}
-	// создаем структуру респонс
+
 	response := tasks.PostTasks201JSONResponse{
 		Id:   &createdTask.ID,
 		Task: &createdTask.Task,
 	}
-	// Просто возвращаем респонс!
+
 	return response, nil
 }
 
