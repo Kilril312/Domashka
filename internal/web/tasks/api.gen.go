@@ -13,30 +13,25 @@ import (
 	strictecho "github.com/oapi-codegen/runtime/strictmiddleware/echo"
 )
 
-// Task defines model for Task.
-type Task struct {
-	Id     *uint   `json:"id,omitempty"`
-	IsDone *bool   `json:"is_done,omitempty"`
-	Task   *string `json:"task,omitempty"`
+// RequestBodyTask defines model for RequestBodyTask.
+type RequestBodyTask struct {
+	Id   *int    `json:"id,omitempty"`
+	Task *string `json:"task,omitempty"`
 }
 
-// PatchTasksJSONRequestBody defines body for PatchTasks for application/json ContentType.
-type PatchTasksJSONRequestBody = Task
+// PostTasksJSONBody defines parameters for PostTasks.
+type PostTasksJSONBody struct {
+	Task string `json:"task"`
+}
 
 // PostTasksJSONRequestBody defines body for PostTasks for application/json ContentType.
-type PostTasksJSONRequestBody = Task
+type PostTasksJSONRequestBody PostTasksJSONBody
 
 // ServerInterface represents all server handlers.
 type ServerInterface interface {
-	// Delete task
-	// (DELETE /tasks)
-	DeleteTasks(ctx echo.Context) error
 	// Get all tasks
 	// (GET /tasks)
 	GetTasks(ctx echo.Context) error
-	// Patch task
-	// (PATCH /tasks)
-	PatchTasks(ctx echo.Context) error
 	// Create a new task
 	// (POST /tasks)
 	PostTasks(ctx echo.Context) error
@@ -47,30 +42,12 @@ type ServerInterfaceWrapper struct {
 	Handler ServerInterface
 }
 
-// DeleteTasks converts echo context to params.
-func (w *ServerInterfaceWrapper) DeleteTasks(ctx echo.Context) error {
-	var err error
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.DeleteTasks(ctx)
-	return err
-}
-
 // GetTasks converts echo context to params.
 func (w *ServerInterfaceWrapper) GetTasks(ctx echo.Context) error {
 	var err error
 
 	// Invoke the callback with all the unmarshaled arguments
 	err = w.Handler.GetTasks(ctx)
-	return err
-}
-
-// PatchTasks converts echo context to params.
-func (w *ServerInterfaceWrapper) PatchTasks(ctx echo.Context) error {
-	var err error
-
-	// Invoke the callback with all the unmarshaled arguments
-	err = w.Handler.PatchTasks(ctx)
 	return err
 }
 
@@ -111,26 +88,9 @@ func RegisterHandlersWithBaseURL(router EchoRouter, si ServerInterface, baseURL 
 		Handler: si,
 	}
 
-	router.DELETE(baseURL+"/tasks", wrapper.DeleteTasks)
 	router.GET(baseURL+"/tasks", wrapper.GetTasks)
-	router.PATCH(baseURL+"/tasks", wrapper.PatchTasks)
 	router.POST(baseURL+"/tasks", wrapper.PostTasks)
 
-}
-
-type DeleteTasksRequestObject struct {
-}
-
-type DeleteTasksResponseObject interface {
-	VisitDeleteTasksResponse(w http.ResponseWriter) error
-}
-
-type DeleteTasks204Response struct {
-}
-
-func (response DeleteTasks204Response) VisitDeleteTasksResponse(w http.ResponseWriter) error {
-	w.WriteHeader(204)
-	return nil
 }
 
 type GetTasksRequestObject struct {
@@ -140,28 +100,11 @@ type GetTasksResponseObject interface {
 	VisitGetTasksResponse(w http.ResponseWriter) error
 }
 
-type GetTasks200JSONResponse []Task
+type GetTasks200JSONResponse []RequestBodyTask
 
 func (response GetTasks200JSONResponse) VisitGetTasksResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(200)
-
-	return json.NewEncoder(w).Encode(response)
-}
-
-type PatchTasksRequestObject struct {
-	Body *PatchTasksJSONRequestBody
-}
-
-type PatchTasksResponseObject interface {
-	VisitPatchTasksResponse(w http.ResponseWriter) error
-}
-
-type PatchTasks201JSONResponse Task
-
-func (response PatchTasks201JSONResponse) VisitPatchTasksResponse(w http.ResponseWriter) error {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(201)
 
 	return json.NewEncoder(w).Encode(response)
 }
@@ -174,7 +117,7 @@ type PostTasksResponseObject interface {
 	VisitPostTasksResponse(w http.ResponseWriter) error
 }
 
-type PostTasks201JSONResponse Task
+type PostTasks201JSONResponse RequestBodyTask
 
 func (response PostTasks201JSONResponse) VisitPostTasksResponse(w http.ResponseWriter) error {
 	w.Header().Set("Content-Type", "application/json")
@@ -185,15 +128,9 @@ func (response PostTasks201JSONResponse) VisitPostTasksResponse(w http.ResponseW
 
 // StrictServerInterface represents all server handlers.
 type StrictServerInterface interface {
-	// Delete task
-	// (DELETE /tasks)
-	DeleteTasks(ctx context.Context, request DeleteTasksRequestObject) (DeleteTasksResponseObject, error)
 	// Get all tasks
 	// (GET /tasks)
 	GetTasks(ctx context.Context, request GetTasksRequestObject) (GetTasksResponseObject, error)
-	// Patch task
-	// (PATCH /tasks)
-	PatchTasks(ctx context.Context, request PatchTasksRequestObject) (PatchTasksResponseObject, error)
 	// Create a new task
 	// (POST /tasks)
 	PostTasks(ctx context.Context, request PostTasksRequestObject) (PostTasksResponseObject, error)
@@ -209,29 +146,6 @@ func NewStrictHandler(ssi StrictServerInterface, middlewares []StrictMiddlewareF
 type strictHandler struct {
 	ssi         StrictServerInterface
 	middlewares []StrictMiddlewareFunc
-}
-
-// DeleteTasks operation middleware
-func (sh *strictHandler) DeleteTasks(ctx echo.Context) error {
-	var request DeleteTasksRequestObject
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.DeleteTasks(ctx.Request().Context(), request.(DeleteTasksRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "DeleteTasks")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(DeleteTasksResponseObject); ok {
-		return validResponse.VisitDeleteTasksResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
 }
 
 // GetTasks operation middleware
@@ -251,35 +165,6 @@ func (sh *strictHandler) GetTasks(ctx echo.Context) error {
 		return err
 	} else if validResponse, ok := response.(GetTasksResponseObject); ok {
 		return validResponse.VisitGetTasksResponse(ctx.Response())
-	} else if response != nil {
-		return fmt.Errorf("unexpected response type: %T", response)
-	}
-	return nil
-}
-
-// PatchTasks operation middleware
-func (sh *strictHandler) PatchTasks(ctx echo.Context) error {
-	var request PatchTasksRequestObject
-
-	var body PatchTasksJSONRequestBody
-	if err := ctx.Bind(&body); err != nil {
-		return err
-	}
-	request.Body = &body
-
-	handler := func(ctx echo.Context, request interface{}) (interface{}, error) {
-		return sh.ssi.PatchTasks(ctx.Request().Context(), request.(PatchTasksRequestObject))
-	}
-	for _, middleware := range sh.middlewares {
-		handler = middleware(handler, "PatchTasks")
-	}
-
-	response, err := handler(ctx, request)
-
-	if err != nil {
-		return err
-	} else if validResponse, ok := response.(PatchTasksResponseObject); ok {
-		return validResponse.VisitPatchTasksResponse(ctx.Response())
 	} else if response != nil {
 		return fmt.Errorf("unexpected response type: %T", response)
 	}

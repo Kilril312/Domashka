@@ -12,59 +12,53 @@ type TaskHandler struct {
 	service tasksService.TaskService
 }
 
-func NewTaskHandler(s tasksService.TaskService) *TaskHandler {
-	return &TaskHandler{service: s}
-}
-
 func (h *TaskHandler) GetTasks(ctx context.Context, request tasks.GetTasksRequestObject) (tasks.GetTasksResponseObject, error) {
+	// Получение всех задач из сервиса
 	allTasks, err := h.service.GetAllTasks()
 	if err != nil {
 		return nil, err
 	}
+
+	// Создаем переменную респон типа 200джейсонРеспонс
+	// Которую мы потом передадим в качестве ответа
 	response := tasks.GetTasks200JSONResponse{}
 
+	// Заполняем слайс response всеми задачами из БД
 	for _, tsk := range allTasks {
-		task := tasks.Task{
-			Id:     &tsk.ID,
-			Task:   &tsk.Task,
-			IsDone: &tsk.IsDone,
+		task := tasks.RequestBodyTask{
+			Id:   &tsk.ID,
+			Task: &tsk.Task,
 		}
 		response = append(response, task)
 	}
 
+	// САМОЕ ПРЕКРАСНОЕ. Возвращаем просто респонс и nil!
 	return response, nil
-
 }
 
 func (h *TaskHandler) PostTasks(ctx context.Context, request tasks.PostTasksRequestObject) (tasks.PostTasksResponseObject, error) {
-
+	// Распаковываем тело запроса напрямую, без декодера!
 	taskRequest := request.Body
-
-	taskToCreate := tasksService.Task{
-		Text:   *taskRequest.Task,
-		IsDone: *taskRequest.IsDone,
+	// Обращаемся к сервису и создаем задачу
+	taskToCreate := tasksService.RequestBodyTask{
+		Task: *taskRequest.Task,
 	}
 	createdTask, err := h.service.CreateTask(taskToCreate)
 
 	if err != nil {
 		return nil, err
 	}
-
+	// создаем структуру респонс
 	response := tasks.PostTasks201JSONResponse{
-		Id:     &createdTask.ID,
-		Task:   &createdTask.Task,
-		IsDone: &createdTask.IsDone,
+		Id:   &createdTask.ID,
+		Task: &createdTask.Task,
 	}
-
+	// Просто возвращаем респонс!
 	return response, nil
 }
 
-func (h *TaskHandler) PatchTasks(ctx context.Context, request tasks.PatchTasksRequestObject) (tasks.PatchTasksResponseObject, error) {
-
-}
-
-func (h *TaskHandler) DeleteTasks(ctx context.Context, request tasks.DeleteTasksRequestObject) (tasks.DeleteTasksResponseObject, error) {
-
+func NewTaskHandler(s tasksService.TaskService) *TaskHandler {
+	return &TaskHandler{service: s}
 }
 
 func (h *TaskHandler) GetTaskHandler(c echo.Context) error {
