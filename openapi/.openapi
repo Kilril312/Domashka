@@ -3,4 +3,3 @@ generate:
   strict-server: true
   echo-server: true
   models: true
-output: ./internal/web/tasks/api.gen.go

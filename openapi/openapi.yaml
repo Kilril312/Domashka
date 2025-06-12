@@ -38,6 +38,13 @@ paths:
   /tasks/{id}:
     patch:
       summary: Update a task
+      tags: [tasks]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
@@ -53,6 +60,7 @@ paths:
                 $ref: '#/components/schemas/RequestBodyTask'
     delete:
       summary: Delete a task
+      tags: [tasks]
       parameters:
         - name: id
           in: path
@@ -70,5 +78,6 @@ components:
       properties:
         id:
           type: integer
+          format: int64
         task:
           type: string
