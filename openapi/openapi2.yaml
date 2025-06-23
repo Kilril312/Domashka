@@ -3,42 +3,42 @@ info:
   title: API
   version: 1.0.0
 paths:
-  /tasks:
+  /users:
     get:
-      summary: Get all tasks
+      summary: Get all users
       tags:
-        - tasks
+        - users
       responses:
         '200':
-          description: A list of tasks
+          description: A list of users
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/RequestBodyTask'
+                  $ref: '#/components/schemas/Users'
     post:
-      summary: Create a new task
+      summary: Create a new User
       tags:
-        - tasks
+        - users
       requestBody:
-        description: The task to create
+        description: Data User to create
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RequestBodyTask'
+              $ref: '#/components/schemas/Users'
       responses:
         '201':
-          description: The created task
+          description: Created User
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RequestBodyTask'
-  /tasks/{id}:
+                $ref: '#/components/schemas/Users'
+  /users/{id}:
     patch:
-      summary: Update a task
-      tags: [tasks]
+      summary: Change username
+      tags: [users]
       parameters:
         - name: id
           in: path
@@ -50,17 +50,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RequestBodyTask'
+              $ref: '#/components/schemas/Users'
       responses:
         '200':
-          description: Task updated
+          description: User updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RequestBodyTask'
+                $ref: '#/components/schemas/Users'
     delete:
-      summary: Delete a task
-      tags: [tasks]
+      summary: Delete a User
+      tags: [ users ]
       parameters:
         - name: id
           in: path
@@ -69,18 +69,10 @@ paths:
             type: integer
       responses:
         '204':
-          description: Task deleted
+          description: User deleted
 
 components:
   schemas:
-    RequestBodyTask:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        task:
-          type: string
     Users:
       type: object
       properties:
