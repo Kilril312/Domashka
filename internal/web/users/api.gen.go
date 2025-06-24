@@ -17,7 +17,7 @@ import (
 // Users defines model for Users.
 type Users struct {
 	Email    *string `json:"email,omitempty"`
-	Id       *int  `json:"id,omitempty"`
+	Id       *int `json:"id,omitempty"`
 	Password *string `json:"password,omitempty"`
 }
 

@@ -1,9 +1,10 @@
 package tasksService
 
 type TaskService interface {
-	CreateTask(task string) (RequestBodyTask, error)
+	CreateTask(task string, userid int) (RequestBodyTask, error)
 	GetAllTasks() ([]RequestBodyTask, error)
 	GetTaskByID(id string) (RequestBodyTask, error)
+	GetTasksByUserId(userId int) ([]RequestBodyTask, error)
 	UpdateTask(id string, task string) (RequestBodyTask, error)
 	DeleteTaskByID(id string) error
 }
@@ -16,8 +17,11 @@ func NewTaskService(r TaskRepository) TaskService {
 	return &taskService{repo: r}
 }
 
-func (s taskService) CreateTask(task string) (RequestBodyTask, error) {
-	createTask := RequestBodyTask{Task: task}
+func (s taskService) CreateTask(task string, userid int) (RequestBodyTask, error) {
+	createTask := RequestBodyTask{
+		Task:    task,
+		User_id: userid,
+	}
 	createdTask, err := s.repo.CreateTask(createTask)
 	if err != nil {
 		return RequestBodyTask{}, err
@@ -31,6 +35,10 @@ func (s taskService) GetAllTasks() ([]RequestBodyTask, error) {
 
 func (s taskService) GetTaskByID(id string) (RequestBodyTask, error) {
 	return s.repo.GetTaskByID(id)
+}
+
+func (s taskService) GetTasksByUserId(userId int) ([]RequestBodyTask, error) {
+	return s.repo.GetTasksByUserId(userId)
 }
 
 func (s taskService) UpdateTask(id string, task string) (RequestBodyTask, error) {

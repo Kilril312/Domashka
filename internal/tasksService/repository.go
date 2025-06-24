@@ -8,6 +8,7 @@ type TaskRepository interface {
 	CreateTask(task RequestBodyTask) (RequestBodyTask, error)
 	GetAllTask() ([]RequestBodyTask, error)
 	GetTaskByID(id string) (RequestBodyTask, error)
+	GetTasksByUserId(userId int) ([]RequestBodyTask, error)
 	UpdateTask(task RequestBodyTask) error
 	DeleteTaskByID(id string) error
 }
@@ -36,6 +37,12 @@ func (r *taskRepository) GetTaskByID(id string) (RequestBodyTask, error) {
 	var task RequestBodyTask
 	var err = r.db.First(&task, "id = ?", id).Error
 	return task, err
+}
+
+func (r *taskRepository) GetTasksByUserId(userId int) ([]RequestBodyTask, error) {
+	var tasks []RequestBodyTask
+	var err = r.db.Where("user_id = ?", userId).Find(&tasks).Error
+	return tasks, err
 }
 
 func (r *taskRepository) UpdateTask(task RequestBodyTask) error {

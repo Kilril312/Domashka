@@ -3,6 +3,7 @@ package userService
 type UserService interface {
 	CreateUser(email string, password string) (Users, error)
 	GetAllUsers() ([]Users, error)
+	GetTasksForUser(userID int) ([]RequestBodyTask, error)
 	UpdateUser(id string, email string, password string) (Users, error)
 	DeleteUser(id string) error
 }
@@ -26,6 +27,14 @@ func (s userService) CreateUser(email string, password string) (Users, error) {
 
 func (s userService) GetAllUsers() ([]Users, error) {
 	return s.repo.GetAllUsers()
+}
+
+func (s userService) GetTasksForUser(userID int) ([]RequestBodyTask, error) {
+	tasks, err := s.repo.GetTasksForUser(userID)
+	if err != nil {
+		return []RequestBodyTask{}, err
+	}
+	return tasks, nil
 }
 
 func (s userService) UpdateUser(id string, email string, password string) (Users, error) {
