@@ -35,7 +35,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RequestBodyTask'
-  /tasks/{user_id}:
+  /tasks/{user_id}/tasks:
     get:
       summary: Getting tasks from a specific user.
       tags: [ tasks ]

@@ -11,16 +11,12 @@ type TaskHandler struct {
 	service tasksService.TaskService
 }
 
-func NewTaskHandler(s tasksService.TaskService) *TaskHandler {
-	return &TaskHandler{service: s}
-}
-
-func (h *TaskHandler) GetTasksUserId(ctx context.Context, request tasks.GetTasksUserIdRequestObject) (tasks.GetTasksUserIdResponseObject, error) {
+func (h *TaskHandler) GetTasksUserIdTasks(ctx context.Context, request tasks.GetTasksUserIdTasksRequestObject) (tasks.GetTasksUserIdTasksResponseObject, error) {
 	userTasks, err := h.service.GetTasksByUserId(request.UserId)
 	if err != nil {
 		return nil, err
 	}
-	response := tasks.GetTasksUserId200JSONResponse{}
+	response := tasks.GetTasksUserIdTasks200JSONResponse{}
 	for _, tsk := range userTasks {
 		task := tasks.RequestBodyTask{
 			Id:     &tsk.ID,
@@ -30,6 +26,10 @@ func (h *TaskHandler) GetTasksUserId(ctx context.Context, request tasks.GetTasks
 		response = append(response, task)
 	}
 	return response, nil
+}
+
+func NewTaskHandler(s tasksService.TaskService) *TaskHandler {
+	return &TaskHandler{service: s}
 }
 
 func (h *TaskHandler) GetTasks(ctx context.Context, request tasks.GetTasksRequestObject) (tasks.GetTasksResponseObject, error) {
