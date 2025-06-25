@@ -11,6 +11,23 @@ type UserHandlers struct {
 	service userService.UserService
 }
 
+func (u UserHandlers) GetUsersIdTasks(ctx context.Context, request users.GetUsersIdTasksRequestObject) (users.GetUsersIdTasksResponseObject, error) {
+	userTasks, err := u.service.GetTasksForUser(request.Id)
+	if err != nil {
+		return nil, err
+	}
+	response := users.GetUsersIdTasks200JSONResponse{}
+	for _, tsk := range userTasks {
+		task := users.RequestBodyTask{
+			Id:     &tsk.ID,
+			Task:   &tsk.Task,
+			UserId: &tsk.User_id,
+		}
+		response = append(response, task)
+	}
+	return response, nil
+}
+
 func NewUserHandlers(s userService.UserService) *UserHandlers {
 	return &UserHandlers{service: s}
 }

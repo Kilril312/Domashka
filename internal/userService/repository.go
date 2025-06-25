@@ -40,7 +40,7 @@ func (s *userRepository) GetUserById(id string) (Users, error) {
 
 func (s *userRepository) GetTasksForUser(userID int) ([]RequestBodyTask, error) {
 	var tasks []RequestBodyTask
-	var err = s.db.First(&tasks, "user_id = ?", userID).Error
+	var err = s.db.Where("user_id = ?", userID).Find(&tasks).Error
 	return tasks, err
 
 }
